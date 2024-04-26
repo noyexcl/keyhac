@@ -1030,7 +1030,6 @@ class Keymap(ckit.Window):
         #self._debugKeyState(vk)
 
         oneshot = ( vk==self.oneshot_candidate and not self.cancel_oneshot )
-        self.oneshot_candidate = None
         self.cancel_oneshot = False
 
         try: # for error
