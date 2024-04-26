@@ -873,6 +873,8 @@ class Keymap(ckit.Window):
     def _hasKeyAction( self, key ):
         return key in self.current_map
 
+    # 渡されたキーに対してアクションが行われたら True を返す
+    # キーに対応するアクションが存在しなかったら False を返す
     def _keyAction( self, key ):
 
         if self.debug : print( "IN  :", key )
@@ -881,12 +883,15 @@ class Keymap(ckit.Window):
             try:
                 handler = self.current_map[key]
             except KeyError:
+                # マルチストロークモードで、次のKeydownされたキーが予期せぬキーであった場合
                 if self.multi_stroke_keymap and not key.up and not key.oneshot and not key.vk in self.vk_mod_map:
                     winsound.MessageBeep()
                     return True
                 else:
+                    print ("No Action")
                     return False
         finally:
+            # 何にせよ修飾キーでもワンショットキーでもないキーが押された後は、マルチストロークモードを離れる
             if not key.up and not key.oneshot and not key.vk in self.vk_mod_map:
                 self.leaveMultiStroke()
 
@@ -902,6 +907,7 @@ class Keymap(ckit.Window):
 
             self.enterMultiStroke(handler)
 
+        # 文字列で指定されたキーを実行していく
         else:
             if type(handler)!=list and type(handler)!=tuple:
                 handler = [handler]
@@ -939,6 +945,9 @@ class Keymap(ckit.Window):
 
     def _onKeyDown( self, vk ):
 
+        # vk0は何のキーも表さないフェイクのKeyDownイベント
+        # フック内で登録された関数を実行させるために起こされる
+        # hookCall()を参照
         if vk==0:
             for func in self.hook_call_list:
                 func()
@@ -949,8 +958,10 @@ class Keymap(ckit.Window):
 
         self._fixFunnyModifierState()
 
+        # マクロ記録中ならキーを記録しておく
         self._recordKey( vk, False )
 
+        # ReplaceKeyを使って設定されたキー入れ替えマップを元に単純なキーの入れ替えを行う
         try:
             vk = self.vk_vk_map[vk]
             replaced = True
@@ -964,7 +975,12 @@ class Keymap(ckit.Window):
         try:
             old_modifier = self.modifier
             if vk in self.vk_mod_map:
+                # 押されたキーが修飾キーならリストに追加
                 self.modifier |= self.vk_mod_map[vk]
+                
+                # 更にそれがユーザー定義の修飾キーならここで処理する
+                # ここで処理を行う理由は、下の modifierが押しっぱなしになる処理を実行したくないからか
+                # replacedの処理には分岐しないので関係ないっぽい
                 if self.vk_mod_map[vk] & MODKEY_USER_ALL:
                     key = KeyCondition( vk, old_modifier, up=False )
                     self._keyAction(key)
@@ -978,8 +994,8 @@ class Keymap(ckit.Window):
                 key_seq = [ pyauto.KeyDown(vk) ]
                 if self.debug : print( "REP :", key_seq )
                 pyauto.Input.send(key_seq)
-                return True
-            else:
+                return True 
+            else: 
                 if self.send_input_on_tru:
                     # 一部の環境でモディファイアが押しっぱなしになってしまう現象の回避テスト
                     # TRU でも Input.send すると問題が起きない
@@ -1133,6 +1149,8 @@ class Keymap(ckit.Window):
         # キーフック強制解除検出カウンタをリセット
         self.sanity_check_count = 0
 
+        # 起動時に -p オプションを付けるとプロファイルモードになるらしい
+        # 何の違いがあるのかはよく分からない。とりあえず無視する
         if self.profile:
             result = [None]
             profile.runctx( "result[0] = self._onKeyDown(vk)", globals(), locals() )
@@ -1384,6 +1402,7 @@ class Keymap(ckit.Window):
 
     # Win と Alt の単体押しをキャンセルする ( beginInput/endInput込み )
     # Win の単体押しは スタートメニューが開き、Alt の単体押しは メニューバーにフォーカスが移動してしまう。
+    # O-Win、O-Altなどが設定された時のために、本来の動作を取り上げている
     def _cancelOneshotWinAlt(self):
         if checkModifier( self.modifier, MODKEY_ALT ) or checkModifier( self.modifier, MODKEY_WIN ):
             self.beginInput()
@@ -1454,7 +1473,11 @@ class Keymap(ckit.Window):
     #
     def hookCall( self, func ):
         self.hook_call_list.append(func)
+        # vk"0"のKeyDownイベントを発生させている
+        # バーチャルキーコード上、0は何も意味を持たず(数字の0ではない)、フェイクのKeyDownということになる
         pyauto.Input.send( [ pyauto.KeyDown(0) ] )
+        # ここでやっていることはつまり、あらかじめ呼んでほしい関数をリストに登録しておいて、偽のKeyDownイベントを意図的に起こし
+        # 関数をフック内で実行させている
 
     ## キーボードフォーカスを持っているウインドウを取得する
     #
