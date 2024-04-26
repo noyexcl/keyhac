@@ -684,6 +684,8 @@ class Keymap(ckit.Window):
         self.record_status = None               # キーボードマクロの状態
         self.record_seq = None                  # キーボードマクロのシーケンス
         self.hook_call_list = []                # フック内呼び出し関数のリスト
+        self.suspended = False                  # キーマッピングを一時停止するためのフラグ
+        self.suspendKey = None                   # キーマッピングを一時停止するキー
         
         self.font_name = "MS Gothic"
         self.font_size = 12
@@ -888,7 +890,6 @@ class Keymap(ckit.Window):
                     winsound.MessageBeep()
                     return True
                 else:
-                    print ("No Action")
                     return False
         finally:
             # 何にせよ修飾キーでもワンショットキーでもないキーが押された後は、マルチストロークモードを離れる
@@ -1149,6 +1150,17 @@ class Keymap(ckit.Window):
         # キーフック強制解除検出カウンタをリセット
         self.sanity_check_count = 0
 
+        if vk == self.suspendKey:
+            self.suspended = not self.suspended
+
+            if self.suspended:
+                print ("The app has been suspended.") # TODO: ckitを使ってメッセージを表示する
+            else:
+                print ("The app has been resumed.")
+
+        if self.suspended:
+            return False
+                 
         # 起動時に -p オプションを付けるとプロファイルモードになるらしい
         # 何の違いがあるのかはよく分からない。とりあえず無視する
         if self.profile:
@@ -1162,6 +1174,9 @@ class Keymap(ckit.Window):
 
         # キーフック強制解除検出カウンタをリセット
         self.sanity_check_count = 0
+        
+        if self.suspended:
+            return False
 
         if self.profile:
             result = [None]
@@ -1171,6 +1186,8 @@ class Keymap(ckit.Window):
             return self._onKeyUp(vk)
 
     def _hook_onMouseDown( self, x, y, vk ):
+        if self.suspended:
+            return False
 
         # マウスボタンを操作するとワンショットモディファイアはキャンセルする
         if self.oneshot_candidate:
@@ -1180,12 +1197,16 @@ class Keymap(ckit.Window):
         pass
 
     def _hook_onMouseWheel( self, x, y, wheel ):
+        if self.suspended:
+            return False
 
         # マウスホイールを操作するとワンショットモディファイアはキャンセルする
         if self.oneshot_candidate:
             self.cancel_oneshot = True
 
     def _hook_onMouseHorizontalWheel( self, x, y, wheel ):
+        if self.suspended:
+            return False
 
         # マウスホイールを操作するとワンショットモディファイアはキャンセルする
         if self.oneshot_candidate:
