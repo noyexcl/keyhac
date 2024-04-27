@@ -585,12 +585,13 @@ class KeyCondition:
 ## Keymap.defineWindowKeymap や Keymap.defineMultiStrokeKeymap によって作られる ウインドウ条件ごとのキーマップ定義
 class WindowKeymap:
 
-    def __init__( self, exe_name=None, class_name=None, window_text=None, check_func=None, help_string=None ):
+    def __init__( self, exe_name=None, class_name=None, window_text=None, check_func=None, help_string=None, layer=0 ):
         self.exe_name = exe_name
         self.class_name = class_name
         self.window_text = window_text
         self.check_func = check_func
         self.help_string = help_string
+        self.layer = layer
 
         ## キーマップの適用直前に呼ばれるコールバック関数
         #  
@@ -672,6 +673,7 @@ class Keymap(ckit.Window):
         self.profile = profile                  # プロファイルモード
         self.window_keymap_list = []            # WindowKeymapオブジェクトのリスト
         self.multi_stroke_keymap = None         # マルチストローク用のWindowKeymapオブジェクト
+        self.layer = 0                          # 現在のレイヤー
         self.current_map = {}                   # 現在フォーカスされているウインドウで有効なキーマップ
         self.vk_mod_map = {}                    # モディファイアキーの仮想キーコードとビットのテーブル
         self.vk_vk_map = {}                     # キーの置き換えテーブル
@@ -1116,7 +1118,7 @@ class Keymap(ckit.Window):
             self.current_map.update(self.multi_stroke_keymap.keymap)
         else:
             for window_keymap in self.window_keymap_list:
-                if window_keymap.check(self.wnd):
+                if window_keymap.layer == self.layer and window_keymap.check(self.wnd):
                     if window_keymap.applying_func:
                         window_keymap.applying_func()
                     self.current_map.update(window_keymap.keymap)
@@ -1307,8 +1309,8 @@ class Keymap(ckit.Window):
     #  pyauto.Window クラスについては、pyauto のリファレンスを参照してください。\n
     #  http://hp.vector.co.jp/authors/VA012411/pyauto/doc/
     #
-    def defineWindowKeymap( self, exe_name=None, class_name=None, window_text=None, check_func=None ):
-        window_keymap = WindowKeymap( exe_name, class_name, window_text, check_func )
+    def defineWindowKeymap( self, exe_name=None, class_name=None, window_text=None, check_func=None, layer=0):
+        window_keymap = WindowKeymap( exe_name, class_name, window_text, check_func, layer=layer )
         self.window_keymap_list.append(window_keymap)
         return window_keymap
 
@@ -1653,6 +1655,14 @@ class Keymap(ckit.Window):
         print( ckit.strings["warning_api_deprecated"] % ("command_InputText","InputTextCommand") )
         return self.InputTextCommand( s )
 
+
+    ## レイヤーを切り替える関数を返す
+    def SwitchLayerCommand(self, layer):
+        def _switchLayer():
+            self.layer = layer
+            self.updateKeymap()
+
+        return _switchLayer
 
     ## キーボードマクロの記録を開始する
     #
