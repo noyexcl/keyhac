@@ -1,7 +1,12 @@
 ﻿
 Changes
 =========
+    **1.83**
+        - Fixed oneshot modifier jam bug
 
+        - Supported Suspend feature
+        
+        - Supported Keymap Layer feature
 
     **1.82**
 
