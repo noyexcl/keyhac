@@ -1,4 +1,4 @@
-﻿import ckit
+import ckit
 
 keyhac_appname = "Keyhac"
 keyhac_dirname = "Keyhac"
@@ -46,6 +46,18 @@ ckit.strings.setString( "log_config_reloaded",
 ckit.strings.setString( "log_config_editor_launched",
     en_US = "Launched the editor of config file.",
     ja_JP = "設定ファイルのエディタを起動しました." )
+ckit.strings.setString( "log_layer_changed", 
+    en_US = "Changed the layer into %d.",
+    ja_JP = "レイヤーを %d に変更しました."
+)
+ckit.strings.setString( "log_hook_suspended",
+    en_US = "Suspended the hook.",
+    ja_JP = "フックを一時停止しました."
+)
+ckit.strings.setString( "log_hook_resumed",
+    en_US = "Resumed the hook.",
+    ja_JP = "フックを再開しました."
+)
 
 ckit.strings.setString( "log_key_hook_force_cancellation_detected",
     en_US = (

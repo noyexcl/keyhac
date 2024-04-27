@@ -1,4 +1,4 @@
-﻿import os
+import os
 import sys
 import time
 import profile
@@ -1155,9 +1155,9 @@ class Keymap(ckit.Window):
             self.suspended = not self.suspended
 
             if self.suspended:
-                print ("The app has been suspended.") # TODO: ckitを使ってメッセージを表示する
+                print( ckit.strings["log_hook_suspended"] )
             else:
-                print ("The app has been resumed.")
+                print( ckit.strings["log_hook_resumed"] )
 
         if self.suspended:
             return False
@@ -1661,6 +1661,7 @@ class Keymap(ckit.Window):
         def _switchLayer():
             self.layer = layer
             self.updateKeymap()
+            print(ckit.strings["log_layer_changed"] % layer)
 
         return _switchLayer
 
