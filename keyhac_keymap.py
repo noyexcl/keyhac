@@ -687,7 +687,8 @@ class Keymap(ckit.Window):
         self.record_seq = None                  # キーボードマクロのシーケンス
         self.hook_call_list = []                # フック内呼び出し関数のリスト
         self.suspended = False                  # キーマッピングを一時停止するためのフラグ
-        self.suspendKey = None                   # キーマッピングを一時停止するキー
+        self._suspendKey = None                 # キーマッピングを一時停止するキー
+        self._resumeKey = None                  # キーマッピングを再開するキー
         
         self.font_name = "MS Gothic"
         self.font_size = 12
@@ -720,6 +721,34 @@ class Keymap(ckit.Window):
 
         self.enableHook(True)
         self.enableDebug(debug)
+
+    @property
+    def suspendKey(self):
+        return self._suspendKey
+
+    @suspendKey.setter
+    def suspendKey(self, value):
+        if type(value)==str:
+            try:
+                self._suspendKey = KeyCondition.strToVk(value)
+            except:
+                print( ckit.strings["error_invalid_expression_for_argument"] % ("key",), value )
+        else:
+            self._suspendKey = value
+
+    @property
+    def resumeKey(self):
+        return self._resumeKey
+
+    @resumeKey.setter
+    def resumeKey(self, value):
+        if type(value)==str:
+            try:
+                self._resumeKey = KeyCondition.strToVk(value)
+            except:
+                print( ckit.strings["error_invalid_expression_for_argument"] % ("key",), value )
+        else:
+            self._resumeKey = value
 
     def destroy(self):
 
@@ -1151,13 +1180,12 @@ class Keymap(ckit.Window):
         # キーフック強制解除検出カウンタをリセット
         self.sanity_check_count = 0
 
-        if vk == self.suspendKey:
-            self.suspended = not self.suspended
-
-            if self.suspended:
-                print( ckit.strings["log_hook_suspended"] )
-            else:
-                print( ckit.strings["log_hook_resumed"] )
+        if vk == self._suspendKey and not self.suspended:
+            self.suspended = True
+            print( ckit.strings["log_hook_suspended"] )
+        elif vk == self._resumeKey and self.suspended:
+            self.suspended = False
+            print( ckit.strings["log_hook_resumed"] )
 
         if self.suspended:
             return False
