@@ -8,11 +8,13 @@
 
 ### ホットキーによるフックの一時停止/再開
 
-configファイル内で以下のように、キーコードを数字で書いて設定する
+configファイル内で以下のように、仮想キーコードもしくは文字列で設定する
 
+両方同じキーを設定しても良い
 
 ```python
-keymap.suspendKey = 131 # Eject key を表すキーコード
+keymap.suspendKey = 131  # Eject key を表すキーコード
+keymap.resumeKey = "C-End"
 ```
 
 ### レイヤー機能
