@@ -2,7 +2,7 @@
 
 keyhac_appname = "Keyhac"
 keyhac_dirname = "Keyhac"
-keyhac_version = "1.84"
+keyhac_version = "1.85"
 
 _startup_string_fmt = """\
 %s version %s:
@@ -11,7 +11,6 @@ _startup_string_fmt = """\
 
 def startupString():
     return _startup_string_fmt % ( keyhac_appname, keyhac_version )
-
 
 ckit.strings.setString( "log_internal_log_output_enabled",
     en_US = "Enabled the internal log output.",
