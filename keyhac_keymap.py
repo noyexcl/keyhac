@@ -1187,9 +1187,11 @@ class Keymap(ckit.Window):
         if vk == self._suspendKey and not self.suspended:
             self.suspended = True
             print( ckit.strings["log_hook_suspended"] )
+            return True
         elif vk == self._resumeKey and self.suspended:
             self.suspended = False
             print( ckit.strings["log_hook_resumed"] )
+            return True
 
         if self.suspended:
             return False
