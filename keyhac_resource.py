@@ -2,7 +2,7 @@
 
 keyhac_appname = "Keyhac"
 keyhac_dirname = "Keyhac"
-keyhac_version = "1.85"
+keyhac_version = "1.86"
 
 _startup_string_fmt = """\
 %s version %s:
