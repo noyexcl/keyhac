@@ -30,3 +30,8 @@ sub_keymap = keymap.defineWindowKeymap(layer=1)    # 定義時にレイヤーを
 main_keymap["A-1"] = keymap.SwitchLayerCommand(1)  # レイヤーが1に設定されたキーマップに変更
 sub_keymap["A-0"] = keymap.SwitchLayerCommand(0)   # レイヤーが0に設定されたキーマップに変更
 ```
+### 使えるFnキーをF24まで拡張
+
+```python
+main_keymap["A-caret"] = "F24"
+```
