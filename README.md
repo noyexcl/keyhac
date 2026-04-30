@@ -35,3 +35,9 @@ sub_keymap["A-0"] = keymap.SwitchLayerCommand(0)   # レイヤーが0に設定�
 ```python
 main_keymap["A-caret"] = "F24"
 ```
+
+## 動作環境
+
+このアプリは Windows SDK がインストールされていないと動作しない
+
+[このページ](https://learn.microsoft.com/ja-jp/windows/apps/windows-sdk/downloads)から自身の環境にあったものをダウンロードしてほしい
